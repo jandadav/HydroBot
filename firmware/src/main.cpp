@@ -6,6 +6,7 @@
 #include "TimeHandler.h"
 #include "OtaHandler.h"
 
+#define PIN D1
 
 WifiAgent wifiAgent;
 WebServerAgent webServerAgent;
@@ -31,9 +32,16 @@ void setup(void) {
   //TODO is this memmory leak?
   webServerAgent.commandHandler.addCommandCallback("time", [](String c) {char time[20]; timeHandler.getTime(time); return (String)(time); });
 
-  OtaStart("mcu");
+  webServerAgent.commandHandler.addCommandCallback("pin", [](String c) { 
+    digitalWrite(PIN, !digitalRead(PIN));
+    return String(digitalRead(PIN)); 
+  });
+
+  OtaStart("hydrobot");
 
   LOG.verbose(F("=== STARTUP COMPLETE ==="));
+
+  pinMode(PIN, OUTPUT);
 }
 
 void loop(void) {
