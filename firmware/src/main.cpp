@@ -6,12 +6,14 @@
 #include "TimeHandler.h"
 #include "OtaHandler.h"
 #include "Relays.h"
+#include "Distance.h"
 
 WifiAgent wifiAgent;
 WebServerAgent webServerAgent;
 LogHandler logHandler;
 TimeHandler timeHandler;
 Relays relays;
+Distance distance;
 
 void setup(void) {
   // order is important for some
@@ -29,9 +31,7 @@ void setup(void) {
   timeHandler.start();
 
   webServerAgent.commandHandler.addCommandCallback("dummy", [](String c) { return (String) ("dummy command handler receiving: "+c);});
-  //TODO is this memmory leak?
   webServerAgent.commandHandler.addCommandCallback("time", [](String c) {char time[20]; timeHandler.getTime(time); return (String)(time); });
-
   webServerAgent.commandHandler.addCommandCallback("pump", [](String c) { 
     if (c == "on") {
       relays.pumpOn();
@@ -40,20 +40,21 @@ void setup(void) {
     }
     return String(relays.getPumpState());
   });
+  webServerAgent.commandHandler.addCommandCallback("waterLevel", [](String c) {return String(distance.getDistanceCm());});
 
   relays.setup();
+
+  distance.setup();
 
   OtaStart("hydrobot");
 
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);
-
   LOG.verbose(F("=== STARTUP COMPLETE ==="));
-
 }
 
 void loop(void) {
   OtaUpdate();
   timeHandler.update();
-  delay(200);
+  yield();
 }
