@@ -5,13 +5,13 @@
 #include "LogHandler.h"
 #include "TimeHandler.h"
 #include "OtaHandler.h"
-
-#define PIN D1
+#include "Relays.h"
 
 WifiAgent wifiAgent;
 WebServerAgent webServerAgent;
 LogHandler logHandler;
 TimeHandler timeHandler;
+Relays relays;
 
 void setup(void) {
   // order is important for some
@@ -32,20 +32,25 @@ void setup(void) {
   //TODO is this memmory leak?
   webServerAgent.commandHandler.addCommandCallback("time", [](String c) {char time[20]; timeHandler.getTime(time); return (String)(time); });
 
-  webServerAgent.commandHandler.addCommandCallback("pin", [](String c) { 
-    digitalWrite(PIN, !digitalRead(PIN));
-    return String(digitalRead(PIN)); 
+  webServerAgent.commandHandler.addCommandCallback("pump", [](String c) { 
+    if (c == "on") {
+      relays.pumpOn();
+    } else {
+      relays.pumpOff();
+    }
+    return String(relays.getPumpState());
   });
+
+  relays.setup();
 
   OtaStart("hydrobot");
 
   LOG.verbose(F("=== STARTUP COMPLETE ==="));
 
-  pinMode(PIN, OUTPUT);
 }
 
 void loop(void) {
-  timeHandler.update();
   OtaUpdate();
+  timeHandler.update();
   delay(200);
 }
