@@ -29,7 +29,7 @@ void WebServerAgent::begin()
 {
     LOG.trace(F("Adding [GET] '/' handler"));
     server->on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-        request->send(200, F("text/plain"), F("Hello from MCU"));
+        request->send(200, F("text/plain"), F("Hello from HydroBot"));
     });
 
     LOG.trace(F("Adding [GET] '/data' handler"));
