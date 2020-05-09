@@ -9,3 +9,7 @@
 The relay board works on 5V, and to switch on, board pin needs to be pulled to gnd. 3v3 pins of nodeMcu connect like so:
 
 <img src="..\media\relayboard-esp-switch.png" />
+
+Water levels are measured with ultrasonic distance sensors HC-SR04
+
+<img src="..\media\hc-sr04.jpg" />
