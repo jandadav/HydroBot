@@ -45,6 +45,9 @@ void setup(void) {
 
   OtaStart("hydrobot");
 
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, LOW);
+
   LOG.verbose(F("=== STARTUP COMPLETE ==="));
 
 }
