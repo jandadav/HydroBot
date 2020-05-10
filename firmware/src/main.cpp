@@ -7,7 +7,7 @@
 #include "OtaHandler.h"
 #include "Relays.h"
 #include "Distance.h"
-#include <TimeAlarms.h>
+#include "AlarmHandler.h"
 
 WifiAgent wifiAgent;
 WebServerAgent webServerAgent;
@@ -15,9 +15,9 @@ LogHandler logHandler;
 TimeHandler timeHandler;
 Relays relays;
 Distance distance;
+AlarmHandler alarmHandler;
 
-void repeats();
-void timerAlarm();
+void proc();
 
 void setup(void) {
   // order is important for some
@@ -45,6 +45,8 @@ void setup(void) {
     return String(relays.getPumpState());
   });
   webServerAgent.commandHandler.addCommandCallback("waterLevel", [](String c) {return String(distance.getDistanceCm());});
+  //webServerAgent.commandHandler.addCommandCallback("deser", [](String c) {alarmHandler.setup(); return (String)("parsing"); });
+  webServerAgent.commandHandler.addCommandCallback("reset", [](String c) {ESP.reset(); return (String)(""); });
 
   relays.setup();
 
@@ -52,24 +54,21 @@ void setup(void) {
 
   OtaStart("hydrobot");
 
+  alarmHandler.setup(proc);
+
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);
   LOG.verbose(F("=== STARTUP COMPLETE ==="));
 
-  Alarm.timerRepeat(15, repeats);            // timer for every 15 seconds    
-  Alarm.alarmRepeat(19, 45, 0, timerAlarm);              
+            
 }
 
 void loop(void) {
   OtaUpdate();
   timeHandler.update();
-  Alarm.delay(1);
+  alarmHandler.update();
 }
 
-void repeats() {
-  Serial.println("releating alarm");
-}
-
-void timerAlarm() {
-  LOG.verbose("Timer Alarm BZZZZZ");
+void proc() {
+    LOG.verbose("ALARM BZZZZZ");
 }
