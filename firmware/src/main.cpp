@@ -7,6 +7,7 @@
 #include "OtaHandler.h"
 #include "Relays.h"
 #include "Distance.h"
+#include <TimeAlarms.h>
 
 WifiAgent wifiAgent;
 WebServerAgent webServerAgent;
@@ -14,6 +15,9 @@ LogHandler logHandler;
 TimeHandler timeHandler;
 Relays relays;
 Distance distance;
+
+void repeats();
+void timerAlarm();
 
 void setup(void) {
   // order is important for some
@@ -51,10 +55,21 @@ void setup(void) {
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);
   LOG.verbose(F("=== STARTUP COMPLETE ==="));
+
+  Alarm.timerRepeat(15, repeats);            // timer for every 15 seconds    
+  Alarm.alarmRepeat(19, 45, 0, timerAlarm);              
 }
 
 void loop(void) {
   OtaUpdate();
   timeHandler.update();
-  yield();
+  Alarm.delay(1);
+}
+
+void repeats() {
+  Serial.println("releating alarm");
+}
+
+void timerAlarm() {
+  LOG.verbose("Timer Alarm BZZZZZ");
 }
