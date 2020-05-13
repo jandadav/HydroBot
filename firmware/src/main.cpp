@@ -15,6 +15,11 @@ TimeHandler timeHandler;
 Relays relays;
 Distance distance;
 
+// enum SystemState {active, idle};
+// SystemState activeState = idle;
+
+boolean pumpOn = false;
+
 void setup(void) {
   // order is important for some
   Serial.begin(115200);
@@ -33,14 +38,16 @@ void setup(void) {
   webServerAgent.commandHandler.addCommandCallback("dummy", [](String c) { return (String) ("dummy command handler receiving: "+c);});
   webServerAgent.commandHandler.addCommandCallback("time", [](String c) {char time[20]; timeHandler.getTime(time); return (String)(time); });
   webServerAgent.commandHandler.addCommandCallback("pump", [](String c) { 
-    if (c == "on") {
-      relays.pumpOn();
+    if (pumpOn) {
+      pumpOn = false;
     } else {
-      relays.pumpOff();
+      pumpOn = true;
     }
-    return String(relays.getPumpState());
+    return (String)("inverting pump");
   });
   webServerAgent.commandHandler.addCommandCallback("waterLevel", [](String c) {return String(distance.getDistanceCm());});
+  // webServerAgent.commandHandler.addCommandCallback("start", [](String c) {activeState = active; LOG.verbose("cycle start"); return String("cycle start");});
+  // webServerAgent.commandHandler.addCommandCallback("stop", [](String c) {activeState = idle; LOG.verbose("cycle stop"); return String("cycle stop");});
 
   relays.setup();
 
@@ -48,13 +55,28 @@ void setup(void) {
 
   OtaStart("hydrobot");
 
-  pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, LOW);
   LOG.verbose(F("=== STARTUP COMPLETE ==="));
 }
 
 void loop(void) {
+
+  if (pumpOn) {
+    relays.pumpOn();
+  } else {
+    relays.pumpOff();
+  }
+
+  // if(activeState == active) {
+  //   if (distance.getDistanceCm() < 20) {
+  //     activeState = idle;
+  //   }
+  //   relays.pumpOn();
+  // } else {
+  //   relays.pumpOff();
+  // }
+
+
   OtaUpdate();
   timeHandler.update();
-  yield();
+  delay(200);
 }
