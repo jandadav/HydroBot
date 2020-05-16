@@ -7,6 +7,7 @@
 #include "OtaHandler.h"
 #include "Relays.h"
 #include "Distance.h"
+#include "Config.h"
 
 WifiAgent wifiAgent;
 WebServerAgent webServerAgent;
@@ -14,11 +15,10 @@ LogHandler logHandler;
 TimeHandler timeHandler;
 Relays relays;
 Distance distance;
+Config config;
 
-enum SystemState {active, idle};
+enum SystemState {fill, idle};
 SystemState activeState = idle;
-
-boolean pumpOn = false;
 
 void setup(void) {
   // order is important for some
@@ -37,16 +37,8 @@ void setup(void) {
 
   webServerAgent.commandHandler.addCommandCallback("dummy", [](String c) { return (String) ("dummy command handler receiving: "+c);});
   webServerAgent.commandHandler.addCommandCallback("time", [](String c) {char time[20]; timeHandler.getTime(time); return (String)(time); });
-  // webServerAgent.commandHandler.addCommandCallback("pump", [](String c) { 
-  //   if (pumpOn) {
-  //     pumpOn = false;
-  //   } else {
-  //     pumpOn = true;
-  //   }
-  //   return (String)("inverting pump");
-  // });
   webServerAgent.commandHandler.addCommandCallback("waterLevel", [](String c) {return String(distance.getDistanceCm());});
-  webServerAgent.commandHandler.addCommandCallback("start", [](String c) {activeState = active; LOG.verbose("cycle start"); return String("cycle start");});
+  webServerAgent.commandHandler.addCommandCallback("start", [](String c) {activeState = fill; LOG.verbose("cycle start"); return String("cycle start");});
   webServerAgent.commandHandler.addCommandCallback("stop", [](String c) {activeState = idle; LOG.verbose("cycle stop"); return String("cycle stop");});
 
   relays.setup();
@@ -55,32 +47,29 @@ void setup(void) {
 
   OtaStart("hydrobot");
 
+  config.initialize();
+  //LOG.verbose("waterLevelHigh: %f", config.waterLevelHigh);
+
   LOG.verbose(F("=== STARTUP COMPLETE ==="));
+
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, LOW);
 }
 
 void loop(void) {
 
-  // if (pumpOn) {
-  //   relays.pumpOn();
-  // } else {
-  //   relays.pumpOff();
-  // }
-
-  if(activeState == active) {
-    if (distance.getDistanceCm() < 20) {
+  if(activeState == fill) {
+    if (distance.getDistanceCm() < config.waterLevelHigh) {
       activeState = idle;
     }
     relays.pumpOn();
-  } else {
-    relays.pumpOff();
-       if (distance.getDistanceCm() > 20) {
-    activeState = active;
-  }
   }
 
-  
+  if(activeState == idle) {
+    relays.pumpOff();
+  }  
 
   OtaUpdate();
   timeHandler.update();
-  delay(200);
+  delay(400);
 }
