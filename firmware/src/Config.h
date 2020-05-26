@@ -4,6 +4,8 @@
 #include <fs.h>
 #include "LogHandler.h"
 
+//TODO hot reload on config post
+
 class Config {
 
 public:

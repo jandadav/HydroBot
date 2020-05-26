@@ -18,7 +18,7 @@ class LogHandler {
 
 void LogHandler::beginRollingFile() {
   // roughly 100k file
-  LOG.getAppender().push_back(new CustomFileAppender(FILENAME, (uint16_t)50000));
+  LOG.getAppender().push_back(new CustomFileAppender(FILENAME, (uint16_t)30000));
   //tracing filter
   LOG.addLevelToAll(Appender::VERBOSE);
   //time formatter
