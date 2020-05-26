@@ -10,7 +10,7 @@
 class AlarmHandler {
     public:
         void setup(void (*f)());
-        void update();
+        void update(unsigned long ms);
     private:
         const String _configFile = "/config.json";
 };
@@ -55,8 +55,8 @@ void AlarmHandler::setup(void (*f)()) {
     
 }
 
-void AlarmHandler::update() {
-    Alarm.delay(1);
+void AlarmHandler::update(unsigned long ms) {
+    Alarm.delay(ms);
 }
 
 #endif
