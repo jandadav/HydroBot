@@ -7,6 +7,7 @@
 #include "OtaHandler.h"
 #include "Relays.h"
 #include "Distance.h"
+#include "Config.h"
 
 WifiAgent wifiAgent;
 WebServerAgent webServerAgent;
@@ -14,6 +15,10 @@ LogHandler logHandler;
 TimeHandler timeHandler;
 Relays relays;
 Distance distance;
+Config config;
+
+enum SystemState {fill, idle};
+SystemState activeState = idle;
 
 void setup(void) {
   // order is important for some
@@ -32,15 +37,9 @@ void setup(void) {
 
   webServerAgent.commandHandler.addCommandCallback("dummy", [](String c) { return (String) ("dummy command handler receiving: "+c);});
   webServerAgent.commandHandler.addCommandCallback("time", [](String c) {char time[20]; timeHandler.getTime(time); return (String)(time); });
-  webServerAgent.commandHandler.addCommandCallback("pump", [](String c) { 
-    if (c == "on") {
-      relays.pumpOn();
-    } else {
-      relays.pumpOff();
-    }
-    return String(relays.getPumpState());
-  });
   webServerAgent.commandHandler.addCommandCallback("waterLevel", [](String c) {return String(distance.getDistanceCm());});
+  webServerAgent.commandHandler.addCommandCallback("start", [](String c) {activeState = fill; LOG.verbose("cycle start"); return String("cycle start");});
+  webServerAgent.commandHandler.addCommandCallback("stop", [](String c) {activeState = idle; LOG.verbose("cycle stop"); return String("cycle stop");});
 
   relays.setup();
 
@@ -48,13 +47,29 @@ void setup(void) {
 
   OtaStart("hydrobot");
 
+  config.initialize();
+  //LOG.verbose("waterLevelHigh: %f", config.waterLevelHigh);
+
+  LOG.verbose(F("=== STARTUP COMPLETE ==="));
+
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);
-  LOG.verbose(F("=== STARTUP COMPLETE ==="));
 }
 
 void loop(void) {
+
+  if(activeState == fill) {
+    if (distance.getDistanceCm() < config.waterLevelHigh) {
+      activeState = idle;
+    }
+    relays.pumpOn();
+  }
+
+  if(activeState == idle) {
+    relays.pumpOff();
+  }  
+
   OtaUpdate();
   timeHandler.update();
-  yield();
+  delay(400);
 }
