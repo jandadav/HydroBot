@@ -7,6 +7,7 @@
 #include "OtaHandler.h"
 #include "Relays.h"
 #include "Distance.h"
+#include "AlarmHandler.h"
 #include "Config.h"
 
 WifiAgent wifiAgent;
@@ -19,6 +20,14 @@ Config config;
 
 enum SystemState {fill, idle};
 SystemState activeState = idle;
+
+Config config;
+
+enum SystemState {fill, idle};
+AlarmHandler alarmHandler;
+SystemState activeState = idle;
+
+void proc();
 
 void setup(void) {
   // order is important for some
@@ -38,6 +47,7 @@ void setup(void) {
   webServerAgent.commandHandler.addCommandCallback("dummy", [](String c) { return (String) ("dummy command handler receiving: "+c);});
   webServerAgent.commandHandler.addCommandCallback("time", [](String c) {char time[20]; timeHandler.getTime(time); return (String)(time); });
   webServerAgent.commandHandler.addCommandCallback("waterLevel", [](String c) {return String(distance.getDistanceCm());});
+  webServerAgent.commandHandler.addCommandCallback("reset", [](String c) {ESP.reset(); return (String)(""); });
   webServerAgent.commandHandler.addCommandCallback("start", [](String c) {activeState = fill; LOG.verbose("cycle start"); return String("cycle start");});
   webServerAgent.commandHandler.addCommandCallback("stop", [](String c) {activeState = idle; LOG.verbose("cycle stop"); return String("cycle stop");});
 
@@ -48,12 +58,18 @@ void setup(void) {
   OtaStart("hydrobot");
 
   config.initialize();
-  //LOG.verbose("waterLevelHigh: %f", config.waterLevelHigh);
+
+
+  alarmHandler.setup(proc);
+
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, LOW);
 
   LOG.verbose(F("=== STARTUP COMPLETE ==="));
 
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);
+
 }
 
 void loop(void) {
@@ -71,5 +87,13 @@ void loop(void) {
 
   OtaUpdate();
   timeHandler.update();
-  delay(400);
+
+  alarmHandler.update(400);
 }
+
+void proc() {
+    LOG.verbose("Starting watering cycle");
+    activeState = fill;
+}
+
+

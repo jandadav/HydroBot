@@ -1,0 +1,10 @@
+{
+    "water": [
+        "08:00",
+        "12:00",
+        "14:00",
+        "19:00"
+    ],
+    "waterLevelHigh": 30,
+    "waterLevelLow": 0
+}
