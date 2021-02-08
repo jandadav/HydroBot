@@ -16,6 +16,10 @@ LogHandler logHandler;
 TimeHandler timeHandler;
 Relays relays;
 Distance distance;
+Config config;
+
+enum SystemState {fill, idle};
+SystemState activeState = idle;
 
 Config config;
 
@@ -55,6 +59,7 @@ void setup(void) {
 
   config.initialize();
 
+
   alarmHandler.setup(proc);
 
   pinMode(LED_BUILTIN, OUTPUT);
@@ -64,6 +69,7 @@ void setup(void) {
 
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);
+
 }
 
 void loop(void) {
@@ -81,6 +87,7 @@ void loop(void) {
 
   OtaUpdate();
   timeHandler.update();
+
   alarmHandler.update(400);
 }
 
@@ -88,4 +95,5 @@ void proc() {
     LOG.verbose("Starting watering cycle");
     activeState = fill;
 }
+
 
