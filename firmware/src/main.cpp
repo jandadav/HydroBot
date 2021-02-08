@@ -19,11 +19,7 @@ Distance distance;
 Config config;
 
 enum SystemState {fill, idle};
-SystemState activeState = idle;
 
-Config config;
-
-enum SystemState {fill, idle};
 AlarmHandler alarmHandler;
 SystemState activeState = idle;
 
