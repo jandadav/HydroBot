@@ -2,8 +2,8 @@
 #define Logger_h
 #include <stdarg.h>
 #include <Log4Esp.h>
-#include "CustomFileAppender.h"
-#include "TimeHandler.h"
+//#include "CustomFileAppender.h"
+//#include "TimeHandler.h"
 
 // Logger logger;
 const char *FILENAME = "/system.log";
@@ -18,26 +18,26 @@ class LogHandler {
 
 void LogHandler::beginRollingFile() {
   // roughly 100k file
-  LOG.getAppender().push_back(new CustomFileAppender(FILENAME, (uint16_t)30000));
+  // LOG.getAppender().push_back(new CustomFileAppender(FILENAME, (uint16_t)30000));
   //tracing filter
-  LOG.addLevelToAll(Appender::VERBOSE);
+  //LOG.addLevelToAll(Appender::VERBOSE);
   //time formatter
-  LOG.addFormatterToAll(
-    [](Print &output, Appender::Level level, const char *msg, va_list *args) { 
-        output.print(now());  
-        output.print(F(" "));
-        output.print(Appender::toString(level, true));
-        output.print(F(" "));
-        size_t length = vsnprintf(NULL, 0, msg, *args) + 1;
-        char buffer[length];
-        vsnprintf(buffer, length, msg, *args);
-        output.print(buffer);
-    }
-  );
+  // LOG.addFormatterToAll(
+  //   [](Print &output, Appender::Level level, const char *msg, va_list *args) { 
+  //       output.print(now());  
+  //       output.print(F(" "));
+  //       output.print(Appender::toString(level, true));
+  //       output.print(F(" "));
+  //       size_t length = vsnprintf(NULL, 0, msg, *args) + 1;
+  //       char buffer[length];
+  //       vsnprintf(buffer, length, msg, *args);
+  //       output.print(buffer);
+  //   }
+  // );
 }
 
 void LogHandler::clearLogFile() {
-    SPIFFS.remove(FILENAME);
+    //SPIFFS.remove(FILENAME);
 }
 
 

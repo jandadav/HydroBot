@@ -10,13 +10,13 @@ class Config {
 
 public:
     void initialize();
-    double waterLevelHigh = 25;
+    double waterLevelHigh = 22;
 private:
     const String _configFile = "/config.json";
 };
 
 void Config::initialize() {
-    if(SPIFFS.exists(_configFile)){
+    /*if(SPIFFS.exists(_configFile)){
         File file = SPIFFS.open(_configFile, "r");
         StaticJsonDocument<1024> doc;
 
@@ -30,7 +30,7 @@ void Config::initialize() {
         file.close();
     } else {
         LOG.error("Cannot find '/config.json'");
-    }
+    }*/
 }
 
 #endif

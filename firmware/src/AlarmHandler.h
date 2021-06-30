@@ -20,7 +20,7 @@ class AlarmHandler {
 void AlarmHandler::setup(void (*f)()) {
 //     Alarm.timerRepeat(15, repeats);            // timer for every 15 seconds    
 //   Alarm.alarmRepeat(19, 45, 0, timerAlarm);
-    if(SPIFFS.exists(_configFile)){
+    /*if(SPIFFS.exists(_configFile)){
         File file = SPIFFS.open(_configFile, "r");
         StaticJsonDocument<1024> doc;
 
@@ -50,7 +50,19 @@ void AlarmHandler::setup(void (*f)()) {
         file.close();
     } else {
         LOG.error("Cannot find '/config.json'");
-    }
+    }*/
+    
+    Alarm.alarmRepeat(6, 0, 0, f);
+    Alarm.alarmRepeat(8, 0, 0, f);
+    Alarm.alarmRepeat(10, 0, 0, f);
+    Alarm.alarmRepeat(12, 0, 0, f);
+    Alarm.alarmRepeat(14, 0, 0, f);
+    Alarm.alarmRepeat(16, 0, 0, f);
+    Alarm.alarmRepeat(18, 0, 0, f);
+    Alarm.alarmRepeat(20, 0, 0, f);
+
+    
+
     
     
 }

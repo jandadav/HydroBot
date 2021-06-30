@@ -4,7 +4,7 @@
 #include <FS.h> 
 #include "LogHandler.h"
 #include "TimeHandler.h"
-#include "OtaHandler.h"
+//#include "OtaHandler.h"
 #include "Relays.h"
 #include "Distance.h"
 #include "AlarmHandler.h"
@@ -51,7 +51,7 @@ void setup(void) {
 
   distance.setup();
 
-  OtaStart("hydrobot");
+  //OtaStart("hydrobot");
 
   config.initialize();
 
@@ -81,7 +81,7 @@ void loop(void) {
     relays.pumpOff();
   }  
 
-  OtaUpdate();
+  //OtaUpdate();
   timeHandler.update();
 
   alarmHandler.update(400);
